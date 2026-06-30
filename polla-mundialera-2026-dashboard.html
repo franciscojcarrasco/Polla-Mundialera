@@ -148,21 +148,9 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:40px;pad
   <div style="display:flex;align-items:center;gap:14px;">
     <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Datos de referencia (sin conexión en vivo)</span></div>
     <button class="btn" id="refreshBtn" onclick="loadLive(true)">Actualizar</button>
-    <button class="btn" onclick="toggleConfig()">Configurar</button>
   </div>
 </header>
 
-<div id="configPanel">
-  <label><b style="color:var(--white)">Conexión en vivo con Google Sheets</b><br>
-  Para que este dashboard se actualice automáticamente cada vez que abras el archivo, convierte la planilla a Google Sheets nativo (Archivo → Guardar como Hojas de cálculo de Google) y compártela como "Cualquier persona con el enlace - Lector". Luego pega aquí el ID de esa hoja (la parte de la URL entre <code>/d/</code> y <code>/edit</code>).</label>
-  <div class="row">
-    <input type="text" id="sheetIdInput" placeholder="ID de Google Sheets">
-    <button class="btn gold" onclick="saveSheetId()">Guardar y conectar</button>
-    <button class="btn" onclick="clearSheetId()">Quitar conexión</button>
-    <button class="btn" onclick="testLink()">Probar enlace de datos</button>
-  </div>
-  <p style="color:var(--muted);font-size:11.5px;margin-top:10px;">"Probar enlace de datos" abre en una pestaña nueva el archivo CSV crudo de la pestaña PREDICCIONES. Si ves texto separado por comas, la hoja está bien compartida y el problema es solo de conexión del navegador; si pide iniciar sesión, falta ajustar el permiso "Cualquier persona con el enlace".</p>
-</div>
 
 <nav class="tabs">
   <button class="active" data-tab="ranking">Ranking</button>
@@ -208,6 +196,7 @@ const SNAPSHOT = {"participants": ["Francisco", "Renato", "Cindy", "Matias", "Pa
 const PARTICIPANTS = SNAPSHOT.participants;
 const COLORS = ["#2f6fed","#ff7a1a","#d4af37","#7fb3ff","#ffae6e","#e6c875","#5b8bf0","#c9c9c9","#3b5fc4","#cc6313"];
 
+const DEFAULT_SHEET_ID = "17kCcRNsL_bGkqCQmSM0JutkN2zPDtEuCThtmjBemW9c";
 let DATA = JSON.parse(JSON.stringify(SNAPSHOT));
 let simPicks = {};
 let liveMode = false;
@@ -222,29 +211,6 @@ $('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
   $('.panel').forEach(p=>p.classList.remove('active'));
   $1('#tab-'+b.dataset.tab).classList.add('active');
 }));
-
-function toggleConfig(){
-  $1('#configPanel').classList.toggle('open');
-}
-function saveSheetId(){
-  const id = $1('#sheetIdInput').value.trim();
-  if(!id){return;}
-  localStorage.setItem('pollaSheetId', id);
-  loadLive(true);
-}
-function clearSheetId(){
-  localStorage.removeItem('pollaSheetId');
-  DATA = JSON.parse(JSON.stringify(SNAPSHOT));
-  liveMode = false;
-  setStatus(false, 'Conexión removida. Mostrando datos de referencia.');
-  renderAll();
-}
-function testLink(){
-  const id = ($1('#sheetIdInput').value || localStorage.getItem('pollaSheetId') || '').trim();
-  if(!id){ alert('Primero pega el ID de la hoja.'); return; }
-  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('PREDICCIONES')}`;
-  window.open(url, '_blank');
-}
 
 // ---------- CSV / GVIZ ----------
 function parseCSVRow(line){
@@ -343,9 +309,8 @@ function faseFor(id){
 }
 
 async function loadLive(manual){
-  const sheetId = localStorage.getItem('pollaSheetId');
+  const sheetId = DEFAULT_SHEET_ID;
   if(!sheetId){
-    if(manual){ toggleConfig(); }
     return;
   }
   setStatus(null, 'Conectando con Google Sheets...');
@@ -591,10 +556,7 @@ function renderAll(){
   setStatus(false, 'Datos de referencia (snapshot guardado al construir el dashboard)');
   $1('#lastUpdated').textContent = new Date().toLocaleString('es-CL');
   renderAll();
-  if(localStorage.getItem('pollaSheetId')){
-    $1('#sheetIdInput').value = localStorage.getItem('pollaSheetId');
-    loadLive(false);
-  }
+  loadLive(false);
 })();
 </script>
 </body>
