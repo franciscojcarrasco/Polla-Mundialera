@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polla Mundialera 2026 · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080a;
+  --surface:#131316;
+  --surface2:#1b1b1f;
+  --line:#2a2a30;
+  --blue:#2f6fed;
+  --blue-dim:#1b3a82;
+  --orange:#ff7a1a;
+  --gold:#d4af37;
+  --white:#f4f3ef;
+  --muted:#8a8a92;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse at top left, rgba(47,111,237,0.10), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255,122,26,0.08), transparent 50%),
+    var(--bg);
+  color:var(--white);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:0.5px;}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 20px 60px;}
+
+/* HEADER */
+header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px;}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand .ball{width:46px;height:46px;border-radius:50%;background:conic-gradient(from 180deg, var(--blue), var(--orange), var(--gold), var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:20px;color:#08080a;flex:none;}
+.brand h1{font-size:26px;margin:0;line-height:1;color:var(--white);text-transform:uppercase;}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:12.5px;}
+.status{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 8px var(--orange);}
+.dot.live{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+button.btn{background:var(--surface2);border:1px solid var(--line);color:var(--white);padding:8px 14px;border-radius:8px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600;transition:.15s;}
+button.btn:hover{border-color:var(--blue);color:var(--blue);}
+button.btn.gold:hover{border-color:var(--gold);color:var(--gold);}
+
+/* CONFIG PANEL */
+#configPanel{display:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;font-size:13px;}
+#configPanel.open{display:block;}
+#configPanel input{background:var(--surface2);border:1px solid var(--line);color:var(--white);padding:8px 10px;border-radius:6px;font-family:inherit;width:340px;max-width:100%;font-size:13px;}
+#configPanel label{display:block;margin-bottom:6px;color:var(--muted);}
+#configPanel .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+
+/* TABS */
+nav.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+nav.tabs button{background:transparent;border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:999px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.15s;}
+nav.tabs button:hover{color:var(--white);border-color:var(--blue);}
+nav.tabs button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.panel{display:none;}
+.panel.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* RANKING */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
+.podium .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center;position:relative;overflow:hidden;}
+.podium .card.p1{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset, 0 8px 24px -8px rgba(212,175,55,.35);}
+.podium .card.p2{border-color:var(--blue);}
+.podium .card.p3{border-color:var(--orange);}
+.podium .medal{font-family:'Anton';font-size:34px;}
+.podium .p1 .medal{color:var(--gold);}
+.podium .p2 .medal{color:var(--blue);}
+.podium .p3 .medal{color:var(--orange);}
+.podium .name{font-weight:800;font-size:16px;margin:6px 0 2px;}
+.podium .pts{color:var(--muted);font-size:13px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;}
+th{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;}
+td:first-child,th:first-child{text-align:left;}
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:6px 14px;overflow-x:auto;}
+.rk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-weight:800;font-size:11px;background:var(--surface2);}
+.rk.r1{background:var(--gold);color:#08080a;}
+.rk.r2{background:var(--blue);color:#fff;}
+.rk.r3{background:var(--orange);color:#08080a;}
+.total{color:var(--gold);font-weight:800;}
+
+/* PREDICCIONES */
+.fasebar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.fasebar button{background:var(--surface2);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+.fasebar button.active{background:var(--orange);border-color:var(--orange);color:#08080a;}
+.matchcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;}
+.matchcard .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.matchcard .teams{font-weight:800;font-size:14.5px;}
+.matchcard .meta{color:var(--muted);font-size:11.5px;}
+.matchcard .real{font-family:'Anton';font-size:15px;color:var(--gold);}
+.predgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;}
+.predchip{background:var(--surface2);border-radius:6px;padding:6px 8px;font-size:11.5px;border-left:3px solid var(--line);}
+.predchip .pn{color:var(--muted);display:block;font-size:10px;text-transform:uppercase;}
+.predchip .ps{font-weight:700;}
+.predchip.exact{border-color:var(--gold);}
+.predchip.correct{border-color:var(--blue);}
+.predchip.miss{border-color:var(--line);opacity:.55;}
+.predchip.pending{border-color:var(--orange);opacity:.7;}
+
+/* ESTADISTICAS */
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:760px){.statgrid{grid-template-columns:1fr;}}
+.statcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+.statcard h3{margin:0 0 12px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-family:'Inter';font-weight:700;}
+.barrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.barrow .lbl{width:74px;font-size:12px;flex:none;}
+.barrow .track{flex:1;background:var(--surface2);border-radius:6px;height:16px;overflow:hidden;}
+.barrow .fill{height:100%;border-radius:6px;}
+.barrow .val{width:34px;text-align:right;font-size:12px;color:var(--muted);flex:none;}
+
+/* BRACKET */
+.bracket-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.bracket-controls p{color:var(--muted);font-size:12.5px;margin:0;max-width:560px;}
+.bcols{display:flex;gap:18px;overflow-x:auto;padding-bottom:14px;}
+.bcol{display:flex;flex-direction:column;min-width:200px;flex:none;}
+.bcol h4{font-family:'Anton';font-size:13px;color:var(--orange);text-transform:uppercase;margin:0 0 10px;text-align:center;letter-spacing:.05em;}
+.bmatch{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;}
+.bteam{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-radius:5px;cursor:default;}
+.bteam.pick{cursor:pointer;}
+.bteam.pick:hover{background:var(--surface2);}
+.bteam.winner{background:rgba(212,175,55,.15);color:var(--gold);font-weight:700;}
+.bteam.tbd{color:var(--muted);font-style:italic;}
+.bdate{color:var(--muted);font-size:10px;margin-top:4px;text-align:center;}
+
+footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:var(--surface2);border:1px solid var(--line);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="ball">PM</div>
+    <div>
+      <h1>Polla Mundialera 2026</h1>
+      <p id="participantList">Cargando...</p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Datos de referencia (sin conexión en vivo)</span></div>
+    <button class="btn" id="refreshBtn" onclick="loadLive(true)">Actualizar</button>
+    <button class="btn" onclick="toggleConfig()">Configurar</button>
+  </div>
+</header>
+
+<div id="configPanel">
+  <label><b style="color:var(--white)">Conexión en vivo con Google Sheets</b><br>
+  Para que este dashboard se actualice automáticamente cada vez que abras el archivo, convierte la planilla a Google Sheets nativo (Archivo → Guardar como Hojas de cálculo de Google) y compártela como "Cualquier persona con el enlace - Lector". Luego pega aquí el ID de esa hoja (la parte de la URL entre <code>/d/</code> y <code>/edit</code>).</label>
+  <div class="row">
+    <input type="text" id="sheetIdInput" placeholder="ID de Google Sheets">
+    <button class="btn gold" onclick="saveSheetId()">Guardar y conectar</button>
+    <button class="btn" onclick="clearSheetId()">Quitar conexión</button>
+    <button class="btn" onclick="testLink()">Probar enlace de datos</button>
+  </div>
+  <p style="color:var(--muted);font-size:11.5px;margin-top:10px;">"Probar enlace de datos" abre en una pestaña nueva el archivo CSV crudo de la pestaña PREDICCIONES. Si ves texto separado por comas, la hoja está bien compartida y el problema es solo de conexión del navegador; si pide iniciar sesión, falta ajustar el permiso "Cualquier persona con el enlace".</p>
+</div>
+
+<nav class="tabs">
+  <button class="active" data-tab="ranking">Ranking</button>
+  <button data-tab="predicciones">Predicciones</button>
+  <button data-tab="estadisticas">Estadísticas</button>
+  <button data-tab="bracket">Bracket &amp; Simulador</button>
+</nav>
+
+<section id="tab-ranking" class="panel active">
+  <div class="podium" id="podium"></div>
+  <div class="tablewrap"><table id="rankingTable"></table></div>
+</section>
+
+<section id="tab-predicciones" class="panel">
+  <div class="fasebar" id="fasebar"></div>
+  <div id="matchList"></div>
+</section>
+
+<section id="tab-estadisticas" class="panel">
+  <div class="statgrid">
+    <div class="statcard"><h3>Puntaje total acumulado</h3><div id="statTotal"></div></div>
+    <div class="statcard"><h3>Marcadores exactos vs. resultados correctos</h3><div id="statAccuracy"></div></div>
+    <div class="statcard" style="grid-column:1/-1;"><h3>Evolución por etapa</h3><div class="tablewrap" style="border:none;background:transparent;padding:0;"><table id="statByPhase"></table></div></div>
+  </div>
+</section>
+
+<section id="tab-bracket" class="panel">
+  <div class="bracket-controls">
+    <p>Haz clic en un equipo de un cruce sin resultado real para simular quién avanza. El bracket se recalcula en cadena hasta la final. Esta simulación es solo para visualizar escenarios; el puntaje oficial se calcula únicamente con los resultados reales y tus pronósticos cargados en la planilla.</p>
+    <button class="btn" onclick="resetSim()">Reiniciar simulación</button>
+  </div>
+  <div class="bcols" id="bracketCols"></div>
+</section>
+
+<footer>
+  Dashboard generado a partir de la planilla "Polla Mundialera 2026" · Reglamento: fase de grupos 3/6 pts (resultado/exacto), eliminación directa 4/8 pts, bonus Top4 inicial 20/12/8/5/3 pts. Última actualización: <span id="lastUpdated">—</span>
+</footer>
+
+</div>
+
+<script>
+const SNAPSHOT = {"participants": ["Francisco", "Renato", "Cindy", "Matias", "Pablo", "Roberto", "Vicente", "Joaquín", "Meil", "Paula"], "matches": [{"id": 1, "dia": "11-jun", "hora": "3:00 PM", "grupo": "A", "partido": "México vs Sudáfrica", "predicciones": {"Francisco": "1-1", "Renato": "0-1", "Cindy": "2-0", "Matias": "2-1", "Pablo": "1-2", "Roberto": "2-0", "Vicente": "1-2", "Joaquín": "1-2", "Meil": "1-0", "Paula": "2-1"}, "resultado_real": "2-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 6, "Matias": 3, "Pablo": 0, "Roberto": 6, "Vicente": 0, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 2, "dia": "11-jun", "hora": "10:00 PM", "grupo": "A", "partido": "Corea del Sur vs Chequia", "predicciones": {"Francisco": "0-1", "Renato": "1-2", "Cindy": "1-2", "Matias": "1-1", "Pablo": "1-1", "Roberto": "1-1", "Vicente": "1-0", "Joaquín": "0-1", "Meil": "1-0", "Paula": "2-0"}, "resultado_real": "2-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 3, "dia": "12-jun", "hora": "3:00 PM", "grupo": "B", "partido": "Canadá vs Bosnia y Herzegovina", "predicciones": {"Francisco": "2-2", "Renato": "1-2", "Cindy": "1-2", "Matias": "1-1", "Pablo": "0-2", "Roberto": "2-1", "Vicente": "1-0", "Joaquín": "0-0", "Meil": "2-0", "Paula": "1-2"}, "resultado_real": "1-1", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 0, "Matias": 6, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 3, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 4, "dia": "12-jun", "hora": "9:00 PM", "grupo": "D", "partido": "Estados Unidos vs Paraguay", "predicciones": {"Francisco": "1-0", "Renato": "2-1", "Cindy": "2-0", "Matias": "0-0", "Pablo": "2-0", "Roberto": "2-2", "Vicente": "2-1", "Joaquín": "1-0", "Meil": "0-1", "Paula": "0-1"}, "resultado_real": "4-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 0, "Pablo": 3, "Roberto": 0, "Vicente": 3, "Joaquín": 3, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 5, "dia": "13-jun", "hora": "3:00 PM", "grupo": "B", "partido": "Catar vs Suiza", "predicciones": {"Francisco": "0-0", "Renato": "0-2", "Cindy": "0-2", "Matias": "0-2", "Pablo": "0-2", "Roberto": "0-2", "Vicente": "1-2", "Joaquín": "0-1", "Meil": "0-2", "Paula": "1-1"}, "resultado_real": "1-1", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 6}, "fase": "FECHA1"}, {"id": 6, "dia": "13-jun", "hora": "6:00 PM", "grupo": "C", "partido": "Brasil vs Marruecos", "predicciones": {"Francisco": "2-0", "Renato": "2-0", "Cindy": "2-0", "Matias": "2-1", "Pablo": "2-2", "Roberto": "1-2", "Vicente": "1-2", "Joaquín": "4-0", "Meil": "3-0", "Paula": "1-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 3, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 7, "dia": "13-jun", "hora": "9:00 PM", "grupo": "C", "partido": "Haití vs Escocia", "predicciones": {"Francisco": "1-3", "Renato": "0-1", "Cindy": "0-1", "Matias": "0-2", "Pablo": "0-4", "Roberto": "1-2", "Vicente": "0-3", "Joaquín": "0-2", "Meil": "0-2", "Paula": "1-2"}, "resultado_real": "0-1", "puntos": {"Francisco": 3, "Renato": 6, "Cindy": 6, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 8, "dia": "14-jun", "hora": "12:00 AM", "grupo": "D", "partido": "Australia vs Turquía", "predicciones": {"Francisco": "0-3", "Renato": "1-2", "Cindy": "1-2", "Matias": "0-2", "Pablo": "1-2", "Roberto": "1-1", "Vicente": "1-3", "Joaquín": "0-1", "Meil": "2-1", "Paula": "0-2"}, "resultado_real": "2-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 3, "Paula": 0}, "fase": "FECHA1"}, {"id": 9, "dia": "14-jun", "hora": "1:00 PM", "grupo": "E", "partido": "Alemania vs Curazao", "predicciones": {"Francisco": "4-0", "Renato": "5-0", "Cindy": "3-0", "Matias": "5-0", "Pablo": "4-0", "Roberto": "4-0", "Vicente": "5-0", "Joaquín": "4-0", "Meil": "4-0", "Paula": "4-0"}, "resultado_real": "7-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 10, "dia": "14-jun", "hora": "4:00 PM", "grupo": "F", "partido": "Países Bajos vs Japón", "predicciones": {"Francisco": "2-1", "Renato": "1-1", "Cindy": "1-2", "Matias": "1-2", "Pablo": "2-1", "Roberto": "1-2", "Vicente": "1-1", "Joaquín": "2-0", "Meil": "2-1", "Paula": "2-2"}, "resultado_real": "2-2", "puntos": {"Francisco": 0, "Renato": 3, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 3, "Joaquín": 0, "Meil": 0, "Paula": 6}, "fase": "FECHA1"}, {"id": 11, "dia": "14-jun", "hora": "7:00 PM", "grupo": "E", "partido": "Costa de Marfil vs Ecuador", "predicciones": {"Francisco": "1-2", "Renato": "1-1", "Cindy": "0-2", "Matias": "1-1", "Pablo": "1-2", "Roberto": "0-1", "Vicente": "0-1", "Joaquín": "1-1", "Meil": "1-1", "Paula": "1-3"}, "resultado_real": "1-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 12, "dia": "14-jun", "hora": "10:00 PM", "grupo": "F", "partido": "Suecia vs Túnez", "predicciones": {"Francisco": "3-0", "Renato": "2-0", "Cindy": "2-1", "Matias": "1-0", "Pablo": "1-1", "Roberto": "2-0", "Vicente": "2-1", "Joaquín": "2-1", "Meil": "0-1", "Paula": "2-1"}, "resultado_real": "5-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 0, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 0, "Paula": 3}, "fase": "FECHA1"}, {"id": 13, "dia": "15-jun", "hora": "12:00 PM", "grupo": "G", "partido": "España vs Cabo Verde", "predicciones": {"Francisco": "5-0", "Renato": "5-0", "Cindy": "3-0", "Matias": "3-0", "Pablo": "3-0", "Roberto": "4-0", "Vicente": "4-0", "Joaquín": "3-1", "Meil": "4-1", "Paula": "4-0"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 14, "dia": "15-jun", "hora": "3:00 PM", "grupo": "H", "partido": "Bélgica vs Egipto", "predicciones": {"Francisco": "2-0", "Renato": "2-1", "Cindy": "2-1", "Matias": "2-0", "Pablo": "2-0", "Roberto": "2-0", "Vicente": "1-1", "Joaquín": "2-0", "Meil": "3-0", "Paula": "2-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 6, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 15, "dia": "15-jun", "hora": "6:00 PM", "grupo": "G", "partido": "Arabia Saudí vs Uruguay", "predicciones": {"Francisco": "1-1", "Renato": "0-1", "Cindy": "0-2", "Matias": "0-2", "Pablo": "0-3", "Roberto": "0-1", "Vicente": "1-2", "Joaquín": "0-2", "Meil": "1-3", "Paula": "1-2"}, "resultado_real": "1-1", "puntos": {"Francisco": 6, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 16, "dia": "15-jun", "hora": "9:00 PM", "grupo": "H", "partido": "RI de Irán vs Nueva Zelanda", "predicciones": {"Francisco": "2-0", "Renato": "0-0", "Cindy": "1-1", "Matias": "2-1", "Pablo": "0-2", "Roberto": "1-0", "Vicente": "1-0", "Joaquín": "1-0", "Meil": "2-1", "Paula": "1-1"}, "resultado_real": "2-2", "puntos": {"Francisco": 0, "Renato": 3, "Cindy": 3, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 3}, "fase": "FECHA1"}, {"id": 17, "dia": "16-jun", "hora": "3:00 PM", "grupo": "I", "partido": "Francia vs Senegal", "predicciones": {"Francisco": "2-1", "Renato": "3-1", "Cindy": "3-0", "Matias": "2-1", "Pablo": "2-0", "Roberto": "2-0", "Vicente": "3-1", "Joaquín": "2-1", "Meil": "3-1", "Paula": "3-0"}, "resultado_real": "3-1", "puntos": {"Francisco": 3, "Renato": 6, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 6, "Joaquín": 3, "Meil": 6, "Paula": 3}, "fase": "FECHA1"}, {"id": 18, "dia": "16-jun", "hora": "6:00 PM", "grupo": "I", "partido": "Irak vs Noruega", "predicciones": {"Francisco": "0-2", "Renato": "0-4", "Cindy": "0-1", "Matias": "0-2", "Pablo": "1-3", "Roberto": "0-2", "Vicente": "0-4", "Joaquín": "0-1", "Meil": "0-3", "Paula": "1-2"}, "resultado_real": "1-4", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 19, "dia": "16-jun", "hora": "9:00 PM", "grupo": "J", "partido": "Argentina vs Argelia", "predicciones": {"Francisco": "3-0", "Renato": "2-1", "Cindy": "3-1", "Matias": "4-0", "Pablo": "4-1", "Roberto": "2-0", "Vicente": "4-1", "Joaquín": "3-1", "Meil": "3-1", "Paula": "2-0"}, "resultado_real": "3-0", "puntos": {"Francisco": 6, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 20, "dia": "17-jun", "hora": "12:00 AM", "grupo": "J", "partido": "Austria vs Jordania", "predicciones": {"Francisco": "1-0", "Renato": "0-0", "Cindy": "1-0", "Matias": "2-0", "Pablo": "2-0", "Roberto": "1-0", "Vicente": "3-1", "Joaquín": "1-1", "Meil": "2-0", "Paula": "2-0"}, "resultado_real": "3-1", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 6, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 21, "dia": "17-jun", "hora": "1:00 PM", "grupo": "K", "partido": "Portugal vs RD Congo", "predicciones": {"Francisco": "4-0", "Renato": "2-0", "Cindy": "2-1", "Matias": "3-0", "Pablo": "4-0", "Roberto": "2-0", "Vicente": "4-1", "Joaquín": "3-1", "Meil": "3-0", "Paula": "3-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 22, "dia": "17-jun", "hora": "4:00 PM", "grupo": "L", "partido": "Inglaterra vs Croacia", "predicciones": {"Francisco": "1-2", "Renato": "1-3", "Cindy": "1-2", "Matias": "2-1", "Pablo": "1-1", "Roberto": "1-1", "Vicente": "1-2", "Joaquín": "2-1", "Meil": "1-1", "Paula": "1-1"}, "resultado_real": "4-2", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 3, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 3, "Meil": 0, "Paula": 0}, "fase": "FECHA1"}, {"id": 23, "dia": "17-jun", "hora": "7:00 PM", "grupo": "L", "partido": "Ghana vs Panamá", "predicciones": {"Francisco": "2-2", "Renato": "1-0", "Cindy": "0-0", "Matias": "2-0", "Pablo": "0-0", "Roberto": "2-0", "Vicente": "3-0", "Joaquín": "0-0", "Meil": "2-1", "Paula": "2-1"}, "resultado_real": "1-0", "puntos": {"Francisco": 0, "Renato": 6, "Cindy": 0, "Matias": 3, "Pablo": 0, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 24, "dia": "17-jun", "hora": "10:00 PM", "grupo": "K", "partido": "Uzbekistán vs Colombia", "predicciones": {"Francisco": "0-2", "Renato": "0-2", "Cindy": "0-3", "Matias": "0-3", "Pablo": "0-3", "Roberto": "0-2", "Vicente": "1-2", "Joaquín": "0-2", "Meil": "0-2", "Paula": "0-2"}, "resultado_real": "1-3", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA1"}, {"id": 25, "dia": "18-jun", "hora": "12:00 PM", "grupo": "A", "partido": "Chequia vs Sudáfrica", "predicciones": {"Francisco": "2-1", "Renato": "2-0", "Cindy": "1-2", "Matias": "1-0", "Pablo": "2-0", "Roberto": "1-0", "Vicente": "2-0", "Joaquín": "1-0", "Meil": "1-1", "Paula": "2-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 6, "Paula": 0}, "fase": "FECHA2"}, {"id": 26, "dia": "18-jun", "hora": "3:00 PM", "grupo": "B", "partido": "Suiza vs Bosnia y Herzegovina", "predicciones": {"Francisco": "2-1", "Renato": "1-1", "Cindy": "2-1", "Matias": "1-1", "Pablo": "2-1", "Roberto": "2-0", "Vicente": "0-1", "Joaquín": "1-0", "Meil": "2-0", "Paula": "2-1"}, "resultado_real": "4-1", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 3, "Matias": 0, "Pablo": 3, "Roberto": 3, "Vicente": 0, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 27, "dia": "18-jun", "hora": "6:00 PM", "grupo": "B", "partido": "Canadá vs Catar", "predicciones": {"Francisco": "1-0", "Renato": "2-1", "Cindy": "1-0", "Matias": "2-1", "Pablo": "2-1", "Roberto": "2-1", "Vicente": "1-1", "Joaquín": "1-0", "Meil": "2-1", "Paula": "1-0"}, "resultado_real": "6-0", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 0, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 28, "dia": "18-jun", "hora": "9:00 PM", "grupo": "A", "partido": "México vs Corea del Sur", "predicciones": {"Francisco": "2-2", "Renato": "0-3", "Cindy": "2-2", "Matias": "1-2", "Pablo": "1-2", "Roberto": "1-1", "Vicente": "1-3", "Joaquín": "1-0", "Meil": "2-1", "Paula": "1-2"}, "resultado_real": "1-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 6, "Meil": 3, "Paula": 0}, "fase": "FECHA2"}, {"id": 29, "dia": "19-jun", "hora": "12:00 AM", "grupo": "D", "partido": "Turquía vs Paraguay", "predicciones": {"Francisco": "1-1", "Renato": "1-1", "Cindy": "1-0", "Matias": "2-1", "Pablo": "2-0", "Roberto": "1-0", "Vicente": "2-0", "Joaquín": "1-1", "Meil": "2-2", "Paula": "1-1"}, "resultado_real": "0-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 30, "dia": "19-jun", "hora": "3:00 PM", "grupo": "D", "partido": "Estados Unidos vs Australia", "predicciones": {"Francisco": "2-1", "Renato": "3-2", "Cindy": "2-1", "Matias": "3-1", "Pablo": "3-1", "Roberto": "1-0", "Vicente": "2-0", "Joaquín": "2-0", "Meil": "3-1", "Paula": "2-0"}, "resultado_real": "2-0", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 6, "Joaquín": 6, "Meil": 3, "Paula": 6}, "fase": "FECHA2"}, {"id": 31, "dia": "19-jun", "hora": "6:00 PM", "grupo": "C", "partido": "Escocia vs Marruecos", "predicciones": {"Francisco": "1-1", "Renato": "1-3", "Cindy": "1-1", "Matias": "0-1", "Pablo": "0-2", "Roberto": "0-1", "Vicente": "1-3", "Joaquín": "2-1", "Meil": "2-1", "Paula": "0-2"}, "resultado_real": "0-1", "puntos": {"Francisco": 0, "Renato": 3, "Cindy": 0, "Matias": 6, "Pablo": 3, "Roberto": 6, "Vicente": 3, "Joaquín": 0, "Meil": 0, "Paula": 3}, "fase": "FECHA2"}, {"id": 32, "dia": "19-jun", "hora": "8:30 PM", "grupo": "C", "partido": "Brasil vs Haití", "predicciones": {"Francisco": "3-0", "Renato": "3-0", "Cindy": "2-0", "Matias": "4-0", "Pablo": "5-0", "Roberto": "5-0", "Vicente": "5-0", "Joaquín": "6-1", "Meil": "4-1", "Paula": "3-0"}, "resultado_real": "3-0", "puntos": {"Francisco": 6, "Renato": 6, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 6}, "fase": "FECHA2"}, {"id": 33, "dia": "20-jun", "hora": "1:00 PM", "grupo": "F", "partido": "Países Bajos vs Suecia", "predicciones": {"Francisco": "2-1", "Renato": "3-2", "Cindy": "1-1", "Matias": "1-2", "Pablo": "2-1", "Roberto": "2-0", "Vicente": "3-2", "Joaquín": "1-1", "Meil": "3-1", "Paula": "2-1"}, "resultado_real": "5-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 0, "Matias": 0, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 34, "dia": "20-jun", "hora": "4:00 PM", "grupo": "E", "partido": "Alemania vs Costa de Marfil", "predicciones": {"Francisco": "3-1", "Renato": "3-1", "Cindy": "3-0", "Matias": "2-1", "Pablo": "3-1", "Roberto": "1-0", "Vicente": "3-0", "Joaquín": "3-1", "Meil": "3-1", "Paula": "2-1"}, "resultado_real": "2-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 6, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 6}, "fase": "FECHA2"}, {"id": 35, "dia": "20-jun", "hora": "8:00 PM", "grupo": "E", "partido": "Ecuador vs Curazao", "predicciones": {"Francisco": "3-0", "Renato": "2-0", "Cindy": "2-1", "Matias": "3-0", "Pablo": "3-0", "Roberto": "3-0", "Vicente": "2-0", "Joaquín": "3-1", "Meil": "3-0", "Paula": "2-0"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 36, "dia": "21-jun", "hora": "12:00 AM", "grupo": "F", "partido": "Túnez vs Japón", "predicciones": {"Francisco": "0-2", "Renato": "1-3", "Cindy": "1-2", "Matias": "1-2", "Pablo": "0-2", "Roberto": "0-1", "Vicente": "1-3", "Joaquín": "1-0", "Meil": "0-2", "Paula": "0-2"}, "resultado_real": "0-4", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 37, "dia": "21-jun", "hora": "12:00 PM", "grupo": "G", "partido": "España vs Arabia Saudí", "predicciones": {"Francisco": "3-0", "Renato": "2-1", "Cindy": "2-0", "Matias": "3-0", "Pablo": "3-0", "Roberto": "4-0", "Vicente": "3-1", "Joaquín": "2-0", "Meil": "3-1", "Paula": "2-1"}, "resultado_real": "4-0", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 6, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 38, "dia": "21-jun", "hora": "3:00 PM", "grupo": "H", "partido": "Bélgica vs Irán", "predicciones": {"Francisco": "2-1", "Renato": "1-2", "Cindy": "2-1", "Matias": "1-1", "Pablo": "2-1", "Roberto": "2-0", "Vicente": "0-1", "Joaquín": "1-2", "Meil": "2-0", "Paula": "2-0"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 3, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 39, "dia": "21-jun", "hora": "6:00 PM", "grupo": "G", "partido": "Uruguay vs Cabo Verde", "predicciones": {"Francisco": "2-0", "Renato": "1-0", "Cindy": "3-0", "Matias": "1-0", "Pablo": "2-1", "Roberto": "2-0", "Vicente": "2-1", "Joaquín": "2-0", "Meil": "3-0", "Paula": "1-0"}, "resultado_real": "2-2", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 40, "dia": "21-jun", "hora": "9:00 PM", "grupo": "H", "partido": "Nueva Zelanda vs Egipto", "predicciones": {"Francisco": "1-2", "Renato": "2-2", "Cindy": "1-0", "Matias": "0-1", "Pablo": "0-2", "Roberto": "0-1", "Vicente": "1-2", "Joaquín": "1-1", "Meil": "1-1", "Paula": "1-2"}, "resultado_real": "1-3", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 0, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 0, "Paula": 3}, "fase": "FECHA2"}, {"id": 41, "dia": "22-jun", "hora": "1:00 PM", "grupo": "J", "partido": "Argentina vs Austria", "predicciones": {"Francisco": "2-0", "Renato": "3-1", "Cindy": "3-1", "Matias": "2-1", "Pablo": "3-1", "Roberto": "1-0", "Vicente": "1-0", "Joaquín": "3-1", "Meil": "3-1", "Paula": "2-0"}, "resultado_real": "2-0", "puntos": {"Francisco": 6, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 6}, "fase": "FECHA2"}, {"id": 42, "dia": "22-jun", "hora": "5:00 PM", "grupo": "I", "partido": "Francia vs Irak", "predicciones": {"Francisco": "3-0", "Renato": "4-0", "Cindy": "2-1", "Matias": "4-0", "Pablo": "5-0", "Roberto": "4-0", "Vicente": "4-0", "Joaquín": "4-1", "Meil": "4-0", "Paula": "3-0"}, "resultado_real": "3-0", "puntos": {"Francisco": 6, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 6}, "fase": "FECHA2"}, {"id": 43, "dia": "22-jun", "hora": "8:00 PM", "grupo": "I", "partido": "Noruega vs Senegal", "predicciones": {"Francisco": "2-1", "Renato": "2-2", "Cindy": "2-1", "Matias": "1-1", "Pablo": "1-2", "Roberto": "1-0", "Vicente": "2-2", "Joaquín": "2-1", "Meil": "3-1", "Paula": "2-0"}, "resultado_real": "3-2", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 3, "Matias": 0, "Pablo": 0, "Roberto": 3, "Vicente": 0, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 44, "dia": "22-jun", "hora": "11:00 PM", "grupo": "J", "partido": "Jordania vs Argelia", "predicciones": {"Francisco": "0-2", "Renato": "0-3", "Cindy": "1-0", "Matias": "0-1", "Pablo": "1-2", "Roberto": "0-1", "Vicente": "1-2", "Joaquín": "0-1", "Meil": "1-1", "Paula": "1-1"}, "resultado_real": "1-2", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 0, "Matias": 3, "Pablo": 6, "Roberto": 3, "Vicente": 6, "Joaquín": 3, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 45, "dia": "23-jun", "hora": "1:00 PM", "grupo": "K", "partido": "Portugal vs Uzbekistán", "predicciones": {"Francisco": "4-0", "Renato": "4-0", "Cindy": "2-1", "Matias": "2-0", "Pablo": "2-0", "Roberto": "3-0", "Vicente": "2-1", "Joaquín": "2-0", "Meil": "3-1", "Paula": "2-1"}, "resultado_real": "5-0", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 46, "dia": "23-jun", "hora": "4:00 PM", "grupo": "L", "partido": "Inglaterra vs Ghana", "predicciones": {"Francisco": "3-0", "Renato": "2-0", "Cindy": "2-0", "Matias": "3-1", "Pablo": "3-1", "Roberto": "2-0", "Vicente": "4-1", "Joaquín": "3-1", "Meil": "2-1", "Paula": "2-0"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA2"}, {"id": 47, "dia": "23-jun", "hora": "7:00 PM", "grupo": "L", "partido": "Panamá vs Croacia", "predicciones": {"Francisco": "0-2", "Renato": "1-3", "Cindy": "0-2", "Matias": "1-2", "Pablo": "1-2", "Roberto": "0-1", "Vicente": "0-3", "Joaquín": "1-3", "Meil": "0-2", "Paula": "0-2"}, "resultado_real": "0-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 6, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 48, "dia": "23-jun", "hora": "10:00 PM", "grupo": "K", "partido": "Colombia vs RD Congo", "predicciones": {"Francisco": "2-0", "Renato": "1-0", "Cindy": "3-1", "Matias": "2-2", "Pablo": "2-2", "Roberto": "1-0", "Vicente": "3-2", "Joaquín": "2-1", "Meil": "2-0", "Paula": "2-1"}, "resultado_real": "1-0", "puntos": {"Francisco": 3, "Renato": 6, "Cindy": 3, "Matias": 0, "Pablo": 0, "Roberto": 6, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA2"}, {"id": 49, "dia": "24-jun", "hora": "3:00 PM", "grupo": "B", "partido": "Suiza vs Canadá", "predicciones": {"Francisco": "2-1", "Renato": "2-1", "Cindy": "2-1", "Matias": "1-2", "Pablo": "1-1", "Roberto": "2-1", "Vicente": "1-3", "Joaquín": "1-0", "Meil": "2-2", "Paula": "1-2"}, "resultado_real": "2-1", "puntos": {"Francisco": 6, "Renato": 6, "Cindy": 6, "Matias": 0, "Pablo": 0, "Roberto": 6, "Vicente": 0, "Joaquín": 3, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 50, "dia": "24-jun", "hora": "3:00 PM", "grupo": "B", "partido": "Bosnia y Herzegovina vs Catar", "predicciones": {"Francisco": "1-0", "Renato": "2-1", "Cindy": "1-0", "Matias": "1-0", "Pablo": "3-0", "Roberto": "2-0", "Vicente": "2-0", "Joaquín": "1-0", "Meil": "2-0", "Paula": "2-1"}, "resultado_real": "3-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 51, "dia": "24-jun", "hora": "6:00 PM", "grupo": "C", "partido": "Escocia vs Brasil", "predicciones": {"Francisco": "1-1", "Renato": "0-3", "Cindy": "1-3", "Matias": "1-4", "Pablo": "0-3", "Roberto": "0-2", "Vicente": "1-3", "Joaquín": "0-3", "Meil": "1-3", "Paula": "0-3"}, "resultado_real": "0-3", "puntos": {"Francisco": 0, "Renato": 6, "Cindy": 3, "Matias": 3, "Pablo": 6, "Roberto": 3, "Vicente": 3, "Joaquín": 6, "Meil": 3, "Paula": 6}, "fase": "FECHA3"}, {"id": 52, "dia": "24-jun", "hora": "6:00 PM", "grupo": "C", "partido": "Marruecos vs Haití", "predicciones": {"Francisco": "3-0", "Renato": "3-0", "Cindy": "2-1", "Matias": "3-1", "Pablo": "4-0", "Roberto": "3-0", "Vicente": "3-0", "Joaquín": "2-0", "Meil": "2-0", "Paula": "3-0"}, "resultado_real": "4-2", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 53, "dia": "24-jun", "hora": "9:00 PM", "grupo": "A", "partido": "Chequia vs México", "predicciones": {"Francisco": "1-0", "Renato": "1-1", "Cindy": "1-1", "Matias": "1-1", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "1-1", "Joaquín": "0-1", "Meil": "1-3", "Paula": "0-2"}, "resultado_real": "0-3", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 3, "Roberto": 3, "Vicente": 0, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 54, "dia": "24-jun", "hora": "9:00 PM", "grupo": "A", "partido": "Sudáfrica vs Corea del Sur", "predicciones": {"Francisco": "0-2", "Renato": "1-3", "Cindy": "0-1", "Matias": "0-1", "Pablo": "0-3", "Roberto": "1-2", "Vicente": "1-3", "Joaquín": "0-1", "Meil": "1-2", "Paula": "0-2"}, "resultado_real": "1-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 55, "dia": "25-jun", "hora": "4:00 PM", "grupo": "E", "partido": "Curazao vs Costa de Marfil", "predicciones": {"Francisco": "0-2", "Renato": "1-3", "Cindy": "0-1", "Matias": "0-3", "Pablo": "0-3", "Roberto": "0-2", "Vicente": "0-2", "Joaquín": "1-3", "Meil": "0-2", "Paula": "0-2"}, "resultado_real": "0-2", "puntos": {"Francisco": 6, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 6, "Vicente": 6, "Joaquín": 3, "Meil": 6, "Paula": 6}, "fase": "FECHA3"}, {"id": 56, "dia": "25-jun", "hora": "4:00 PM", "grupo": "E", "partido": "Ecuador vs Alemania", "predicciones": {"Francisco": "0-1", "Renato": "1-4", "Cindy": "1-2", "Matias": "1-2", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "0-3", "Joaquín": "1-3", "Meil": "2-3", "Paula": "1-2"}, "resultado_real": "2-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 57, "dia": "25-jun", "hora": "7:00 PM", "grupo": "F", "partido": "Japón vs Suecia", "predicciones": {"Francisco": "2-1", "Renato": "1-2", "Cindy": "3-0", "Matias": "2-1", "Pablo": "3-1", "Roberto": "1-1", "Vicente": "3-1", "Joaquín": "0-1", "Meil": "2-2", "Paula": "2-1"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 6, "Vicente": 0, "Joaquín": 0, "Meil": 3, "Paula": 0}, "fase": "FECHA3"}, {"id": 58, "dia": "25-jun", "hora": "7:00 PM", "grupo": "F", "partido": "Túnez vs Países Bajos", "predicciones": {"Francisco": "0-3", "Renato": "0-3", "Cindy": "0-4", "Matias": "0-4", "Pablo": "0-2", "Roberto": "0-3", "Vicente": "0-4", "Joaquín": "1-2", "Meil": "0-3", "Paula": "0-2"}, "resultado_real": "1-3", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 59, "dia": "25-jun", "hora": "10:00 PM", "grupo": "D", "partido": "Turquía vs Estados Unidos", "predicciones": {"Francisco": "1-2", "Renato": "0-2", "Cindy": "", "Matias": "1-2", "Pablo": "0-2", "Roberto": "0-2", "Vicente": "1-3", "Joaquín": "0-1", "Meil": "1-2", "Paula": "0-2"}, "resultado_real": "3-2", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": null, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 60, "dia": "25-jun", "hora": "10:00 PM", "grupo": "D", "partido": "Paraguay vs Australia", "predicciones": {"Francisco": "1-0", "Renato": "0-1", "Cindy": "", "Matias": "1-1", "Pablo": "0-2", "Roberto": "1-1", "Vicente": "1-1", "Joaquín": "1-0", "Meil": "1-1", "Paula": "2-2"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": null, "Matias": 3, "Pablo": 0, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 61, "dia": "26-jun", "hora": "3:00 PM", "grupo": "I", "partido": "Noruega vs Francia", "predicciones": {"Francisco": "2-3", "Renato": "1-3", "Cindy": "1-3", "Matias": "1-2", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "1-3", "Joaquín": "1-3", "Meil": "2-3", "Paula": "1-2"}, "resultado_real": "1-4", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 62, "dia": "26-jun", "hora": "3:00 PM", "grupo": "I", "partido": "Senegal vs Irak", "predicciones": {"Francisco": "2-0", "Renato": "1-0", "Cindy": "1-0", "Matias": "3-0", "Pablo": "2-0", "Roberto": "2-0", "Vicente": "3-1", "Joaquín": "1-1", "Meil": "1-0", "Paula": "2-0"}, "resultado_real": "5-0", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 63, "dia": "26-jun", "hora": "8:00 PM", "grupo": "G", "partido": "Cabo Verde vs Arabia Saudí", "predicciones": {"Francisco": "1-2", "Renato": "1-2", "Cindy": "1-2", "Matias": "2-1", "Pablo": "2-1", "Roberto": "2-1", "Vicente": "2-1", "Joaquín": "0-1", "Meil": "1-0", "Paula": "2-1"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 64, "dia": "26-jun", "hora": "8:00 PM", "grupo": "G", "partido": "Uruguay vs España", "predicciones": {"Francisco": "1-2", "Renato": "1-3", "Cindy": "1-3", "Matias": "1-2", "Pablo": "0-2", "Roberto": "1-1", "Vicente": "0-3", "Joaquín": "1-3", "Meil": "1-3", "Paula": "0-2"}, "resultado_real": "0-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 0, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 65, "dia": "26-jun", "hora": "11:00 PM", "grupo": "H", "partido": "Egipto vs Irán", "predicciones": {"Francisco": "2-1", "Renato": "2-1", "Cindy": "1-0", "Matias": "2-1", "Pablo": "2-1", "Roberto": "1-0", "Vicente": "1-1", "Joaquín": "1-1", "Meil": "2-1", "Paula": "2-1"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 6, "Joaquín": 6, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 66, "dia": "26-jun", "hora": "11:00 PM", "grupo": "H", "partido": "Nueva Zelanda vs Bélgica", "predicciones": {"Francisco": "0-2", "Renato": "1-1", "Cindy": "0-2", "Matias": "1-2", "Pablo": "1-1", "Roberto": "0-3", "Vicente": "0-2", "Joaquín": "1-2", "Meil": "0-2", "Paula": "0-2"}, "resultado_real": "1-5", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 3, "Matias": 3, "Pablo": 0, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 67, "dia": "27-jun", "hora": "5:00 PM", "grupo": "L", "partido": "Panamá vs Inglaterra", "predicciones": {"Francisco": "0-2", "Renato": "0-2", "Cindy": "0-3", "Matias": "0-3", "Pablo": "0-3", "Roberto": "0-2", "Vicente": "0-4", "Joaquín": "1-3", "Meil": "0-3", "Paula": "0-2"}, "resultado_real": "0-2", "puntos": {"Francisco": 6, "Renato": 6, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 6, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 6}, "fase": "FECHA3"}, {"id": 68, "dia": "27-jun", "hora": "5:00 PM", "grupo": "L", "partido": "Croacia vs Ghana", "predicciones": {"Francisco": "2-0", "Renato": "0-2", "Cindy": "1-1", "Matias": "1-0", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "1-1", "Joaquín": "2-1", "Meil": "2-0", "Paula": "2-1"}, "resultado_real": "2-1", "puntos": {"Francisco": 3, "Renato": 0, "Cindy": 0, "Matias": 3, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 6, "Meil": 3, "Paula": 6}, "fase": "FECHA3"}, {"id": 69, "dia": "27-jun", "hora": "7:30 PM", "grupo": "K", "partido": "Colombia vs Portugal", "predicciones": {"Francisco": "0-1", "Renato": "1-3", "Cindy": "1-2", "Matias": "1-2", "Pablo": "1-2", "Roberto": "1-1", "Vicente": "1-3", "Joaquín": "1-2", "Meil": "2-2", "Paula": "1-2"}, "resultado_real": "0-0", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 3, "Vicente": 0, "Joaquín": 0, "Meil": 3, "Paula": 0}, "fase": "FECHA3"}, {"id": 70, "dia": "27-jun", "hora": "7:30 PM", "grupo": "K", "partido": "RD Congo vs Uzbekistán", "predicciones": {"Francisco": "1-0", "Renato": "1-0", "Cindy": "2-1", "Matias": "3-1", "Pablo": "2-0", "Roberto": "2-0", "Vicente": "0-0", "Joaquín": "1-1", "Meil": "1-0", "Paula": "1-0"}, "resultado_real": "3-1", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 6, "Pablo": 3, "Roberto": 3, "Vicente": 0, "Joaquín": 0, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 71, "dia": "27-jun", "hora": "10:00 PM", "grupo": "J", "partido": "Argelia vs Austria", "predicciones": {"Francisco": "1-2", "Renato": "1-2", "Cindy": "1-2", "Matias": "1-1", "Pablo": "1-1", "Roberto": "1-1", "Vicente": "0-1", "Joaquín": "1-2", "Meil": "1-2", "Paula": "1-2"}, "resultado_real": "3-3", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "FECHA3"}, {"id": 72, "dia": "27-jun", "hora": "10:00 PM", "grupo": "J", "partido": "Jordania vs Argentina", "predicciones": {"Francisco": "0-2", "Renato": "0-5", "Cindy": "0-3", "Matias": "0-3", "Pablo": "0-3", "Roberto": "0-3", "Vicente": "0-4", "Joaquín": "0-2", "Meil": "0-3", "Paula": "0-3"}, "resultado_real": "1-3", "puntos": {"Francisco": 3, "Renato": 3, "Cindy": 3, "Matias": 3, "Pablo": 3, "Roberto": 3, "Vicente": 3, "Joaquín": 3, "Meil": 3, "Paula": 3}, "fase": "FECHA3"}, {"id": 73, "dia": "28-jun", "hora": "3:00 PM", "grupo": "-", "partido": "Sudafrica vs Canada", "predicciones": {"Francisco": "1-2", "Renato": "1-3", "Cindy": "1-3", "Matias": "0-2", "Pablo": "0-2", "Roberto": "0-2", "Vicente": "1-3", "Joaquín": "0-2", "Meil": "0-2", "Paula": "1-2"}, "resultado_real": "0-1", "puntos": {"Francisco": 4, "Renato": 4, "Cindy": 4, "Matias": 4, "Pablo": 4, "Roberto": 4, "Vicente": 4, "Joaquín": 4, "Meil": 4, "Paula": 4}, "fase": "16AVOS"}, {"id": 74, "dia": "29-jun", "hora": "1:00 PM", "grupo": "-", "partido": "Brasil vs Japón", "predicciones": {"Francisco": "2-1", "Renato": "3-1", "Cindy": "", "Matias": "2-1", "Pablo": "3-0", "Roberto": "3-1", "Vicente": "2-2", "Joaquín": "3-1", "Meil": "3-2", "Paula": "2-1"}, "resultado_real": "2-1", "puntos": {"Francisco": 8, "Renato": 4, "Cindy": null, "Matias": 8, "Pablo": 4, "Roberto": 4, "Vicente": 0, "Joaquín": 4, "Meil": 4, "Paula": 8}, "fase": "16AVOS"}, {"id": 75, "dia": "29-jun", "hora": "4:30 PM", "grupo": "-", "partido": "Alemania vs Paraguay", "predicciones": {"Francisco": "3-0", "Renato": "3-0", "Cindy": "2-0", "Matias": "2-0", "Pablo": "2-1", "Roberto": "2-0", "Vicente": "3-0", "Joaquín": "2-0", "Meil": "3-1", "Paula": "2-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 0, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 0, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 0, "Paula": 0}, "fase": "16AVOS"}, {"id": 76, "dia": "29-jun", "hora": "9:00 PM", "grupo": "-", "partido": "Paises Bajos vs Marruecos", "predicciones": {"Francisco": "1-1", "Renato": "4-2", "Cindy": "2-0", "Matias": "2-1", "Pablo": "1-1", "Roberto": "2-1", "Vicente": "1-3", "Joaquín": "2-1", "Meil": "2-2", "Paula": "1-0"}, "resultado_real": "1-1", "puntos": {"Francisco": 8, "Renato": 0, "Cindy": 0, "Matias": 0, "Pablo": 8, "Roberto": 0, "Vicente": 0, "Joaquín": 0, "Meil": 4, "Paula": 0}, "fase": "16AVOS"}, {"id": 77, "dia": "30-jun", "hora": "1:00 PM", "grupo": "-", "partido": "Costa de Marfil vs Noruega", "predicciones": {"Francisco": "1-2", "Renato": "", "Cindy": "", "Matias": "1-2", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "0-3", "Joaquín": "2-1", "Meil": "2-1", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 78, "dia": "30-jun", "hora": "5:00 PM", "grupo": "-", "partido": "Francia vs Suecia", "predicciones": {"Francisco": "3-1", "Renato": "", "Cindy": "", "Matias": "3-1", "Pablo": "4-0", "Roberto": "3-0", "Vicente": "3-1", "Joaquín": "3-0", "Meil": "3-0", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 79, "dia": "30-jun", "hora": "9:00 PM", "grupo": "-", "partido": "Mexico vs Ecuador", "predicciones": {"Francisco": "2-2", "Renato": "", "Cindy": "", "Matias": "1-2", "Pablo": "1-2", "Roberto": "2-1", "Vicente": "1-1", "Joaquín": "1-0", "Meil": "2-2", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 80, "dia": "01-jul", "hora": "12:00 PM", "grupo": "-", "partido": "Inglaterra vs Congo", "predicciones": {"Francisco": "3-1", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "3-0", "Roberto": "3-1", "Vicente": "1-1", "Joaquín": "3-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 81, "dia": "01-jul", "hora": "4:00 PM", "grupo": "-", "partido": "Bélgica vs Senegal", "predicciones": {"Francisco": "2-1", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "2-1", "Roberto": "2-2", "Vicente": "1-2", "Joaquín": "2-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 82, "dia": "01-jul", "hora": "8:00 PM", "grupo": "-", "partido": "Estados Unidos vs Bosnia Herzegovina", "predicciones": {"Francisco": "2-0", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "2-0", "Roberto": "2-1", "Vicente": "3-0", "Joaquín": "2-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 83, "dia": "02-jul", "hora": "3:00 PM", "grupo": "-", "partido": "España vs Austria", "predicciones": {"Francisco": "3-1", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "3-0", "Roberto": "3-1", "Vicente": "3-0", "Joaquín": "3-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 84, "dia": "02-jul", "hora": "7:00 PM", "grupo": "-", "partido": "Portugal vs Croacia", "predicciones": {"Francisco": "2-1", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "2-1", "Roberto": "2-1", "Vicente": "2-0", "Joaquín": "2-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 85, "dia": "02-jul", "hora": "11:00 PM", "grupo": "-", "partido": "Suiza vs Argelia", "predicciones": {"Francisco": "2-1", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "3-1", "Roberto": "2-1", "Vicente": "1-1", "Joaquín": "1-0", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 86, "dia": "03-jul", "hora": "2:00 PM", "grupo": "-", "partido": "Australia vs Egipto", "predicciones": {"Francisco": "1-2", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "1-2", "Roberto": "1-2", "Vicente": "1-1", "Joaquín": "2-1", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 87, "dia": "03-jul", "hora": "6:00 PM", "grupo": "-", "partido": "Argentina vs Cabo Verde", "predicciones": {"Francisco": "3-0", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "4-0", "Roberto": "4-0", "Vicente": "3-0", "Joaquín": "4-0", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 88, "dia": "03-jul", "hora": "9:30 PM", "grupo": "-", "partido": "Colombia vs Ghana", "predicciones": {"Francisco": "2-0", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "2-0", "Roberto": "2-0", "Vicente": "3-1", "Joaquín": "2-0", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "16AVOS"}, {"id": 89, "dia": "04-jul", "hora": "1:00 PM", "grupo": "-", "partido": "M89: Gan.M74 vs Gan.M77", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 90, "dia": "04-jul", "hora": "5:00 PM", "grupo": "-", "partido": "M90: Gan.M73 vs Gan.M75", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 91, "dia": "05-jul", "hora": "4:00 PM", "grupo": "-", "partido": "M91: Gan.M76 vs Gan.M78", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 92, "dia": "05-jul", "hora": "8:00 PM", "grupo": "-", "partido": "M92: Gan.M79 vs Gan.M80", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 93, "dia": "06-jul", "hora": "3:00 PM", "grupo": "-", "partido": "M93: Gan.M83 vs Gan.M84", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 94, "dia": "06-jul", "hora": "8:00 PM", "grupo": "-", "partido": "M94: Gan.M81 vs Gan.M82", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 95, "dia": "07-jul", "hora": "12:00 PM", "grupo": "-", "partido": "M95: Gan.M86 vs Gan.M88", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 96, "dia": "07-jul", "hora": "4:00 PM", "grupo": "-", "partido": "M96: Gan.M85 vs Gan.M87", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "OCTAVOS"}, {"id": 97, "dia": "09-jul", "hora": "4:00 PM", "grupo": "-", "partido": "M97: Gan.M89 vs Gan.M90", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "CUARTOS"}, {"id": 98, "dia": "10-jul", "hora": "3:00 PM", "grupo": "-", "partido": "M98: Gan.M93 vs Gan.M94", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "CUARTOS"}, {"id": 99, "dia": "11-jul", "hora": "5:00 PM", "grupo": "-", "partido": "M99: Gan.M91 vs Gan.M92", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "CUARTOS"}, {"id": 100, "dia": "11-jul", "hora": "9:00 PM", "grupo": "-", "partido": "M100: Gan.M95 vs Gan.M96", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "CUARTOS"}, {"id": 101, "dia": "14-jul", "hora": "3:00 PM", "grupo": "-", "partido": "M101 — Semifinal 1: Gan.M97 vs Gan.M98", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "SEMIS"}, {"id": 102, "dia": "15-jul", "hora": "3:00 PM", "grupo": "-", "partido": "M102 — Semifinal 2: Gan.M99 vs Gan.M100", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "SEMIS"}, {"id": 103, "dia": "18-jul", "hora": "5:00 PM", "grupo": "-", "partido": "3er Lugar — M103: Per.M101 vs Per.M102", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "TERCER"}, {"id": 104, "dia": "19-jul", "hora": "3:00 PM", "grupo": "-", "partido": "FINAL — M104: Gan.M101 vs Gan.M102", "predicciones": {"Francisco": "", "Renato": "", "Cindy": "", "Matias": "", "Pablo": "", "Roberto": "", "Vicente": "", "Joaquín": "", "Meil": "", "Paula": ""}, "resultado_real": null, "puntos": {"Francisco": null, "Renato": null, "Cindy": null, "Matias": null, "Pablo": null, "Roberto": null, "Vicente": null, "Joaquín": null, "Meil": null, "Paula": null}, "fase": "FINAL"}], "consolidado": [{"participante": "Paula", "fecha1": 48, "fecha2": 63, "fecha3": 57, "dieciseisavos": 12, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 180, "bonus_top4": 0, "total": 180, "ranking": 1}, {"participante": "Roberto", "fecha1": 33, "fecha2": 63, "fecha3": 63, "dieciseisavos": 8, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 167, "bonus_top4": 0, "total": 167, "ranking": 2}, {"participante": "Francisco", "fecha1": 42, "fecha2": 57, "fecha3": 48, "dieciseisavos": 20, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 167, "bonus_top4": 0, "total": 167, "ranking": 2}, {"participante": "Meil", "fecha1": 36, "fecha2": 51, "fecha3": 54, "dieciseisavos": 12, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 153, "bonus_top4": 0, "total": 153, "ranking": 4}, {"participante": "Matias", "fecha1": 39, "fecha2": 48, "fecha3": 48, "dieciseisavos": 12, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 147, "bonus_top4": 0, "total": 147, "ranking": 5}, {"participante": "Vicente", "fecha1": 48, "fecha2": 48, "fecha3": 45, "dieciseisavos": 4, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 145, "bonus_top4": 0, "total": 145, "ranking": 6}, {"participante": "Renato", "fecha1": 42, "fecha2": 48, "fecha3": 45, "dieciseisavos": 8, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 143, "bonus_top4": 0, "total": 143, "ranking": 7}, {"participante": "Joaquín", "fecha1": 30, "fecha2": 48, "fecha3": 51, "dieciseisavos": 8, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 137, "bonus_top4": 0, "total": 137, "ranking": 8}, {"participante": "Pablo", "fecha1": 27, "fecha2": 48, "fecha3": 42, "dieciseisavos": 16, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 133, "bonus_top4": 0, "total": 133, "ranking": 9}, {"participante": "Cindy", "fecha1": 39, "fecha2": 39, "fecha3": 42, "dieciseisavos": 4, "octavos": 0, "cuartos": 0, "semis": 0, "final": 0, "pts_partidos": 124, "bonus_top4": 0, "total": 124, "ranking": 10}], "top4": {"primer lugar": {"Francisco": "Francia", "Renato": "Francia", "Cindy": "Francia", "Matias": "Brasil", "Pablo": "Francia", "Roberto": "Francia", "Vicente": "España", "Joaquín": "Alemania", "Meil": "Francia", "Paula": "Francia"}, "segundo lugar": {"Francisco": "Argentina", "Renato": "Argentina", "Cindy": "Argentina", "Matias": "Francia", "Pablo": "España", "Roberto": "Argentina", "Vicente": "Argentina", "Joaquín": "Francia", "Meil": "Argentina", "Paula": "Argentina"}, "tercer lugar": {"Francisco": "España", "Renato": "Brasil", "Cindy": "España", "Matias": "Argentina", "Pablo": "Argentina", "Roberto": "España", "Vicente": "Francia", "Joaquín": "Argentina", "Meil": "Inglaterra", "Paula": "Brasil"}, "cuarto lugar": {"Francisco": "Inglaterra", "Renato": "España", "Cindy": "Brasil", "Matias": "España", "Pablo": "Alemania", "Roberto": "Inglaterra", "Vicente": "Brasil", "Joaquín": "Brasil", "Meil": "España", "Paula": "España"}}};
+const PARTICIPANTS = SNAPSHOT.participants;
+const COLORS = ["#2f6fed","#ff7a1a","#d4af37","#7fb3ff","#ffae6e","#e6c875","#5b8bf0","#c9c9c9","#3b5fc4","#cc6313"];
+
+let DATA = JSON.parse(JSON.stringify(SNAPSHOT));
+let simPicks = {};
+let liveMode = false;
+
+function $(s){return document.querySelectorAll(s);}
+function $1(s){return document.querySelector(s);}
+
+// ---------- TABS ----------
+$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  $('nav.tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  $('.panel').forEach(p=>p.classList.remove('active'));
+  $1('#tab-'+b.dataset.tab).classList.add('active');
+}));
+
+function toggleConfig(){
+  $1('#configPanel').classList.toggle('open');
+}
+function saveSheetId(){
+  const id = $1('#sheetIdInput').value.trim();
+  if(!id){return;}
+  localStorage.setItem('pollaSheetId', id);
+  loadLive(true);
+}
+function clearSheetId(){
+  localStorage.removeItem('pollaSheetId');
+  DATA = JSON.parse(JSON.stringify(SNAPSHOT));
+  liveMode = false;
+  setStatus(false, 'Conexión removida. Mostrando datos de referencia.');
+  renderAll();
+}
+function testLink(){
+  const id = ($1('#sheetIdInput').value || localStorage.getItem('pollaSheetId') || '').trim();
+  if(!id){ alert('Primero pega el ID de la hoja.'); return; }
+  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('PREDICCIONES')}`;
+  window.open(url, '_blank');
+}
+
+// ---------- CSV / GVIZ ----------
+function parseCSVRow(line){
+  const out=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(inQ){
+      if(c=='"'){ if(line[i+1]=='"'){cur+='"';i++;} else {inQ=false;} }
+      else cur+=c;
+    } else {
+      if(c=='"') inQ=true;
+      else if(c==','){out.push(cur);cur='';}
+      else cur+=c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+function parseCSV(text){
+  return text.split(/\r?\n/).filter(l=>l.length>0).map(parseCSVRow);
+}
+async function fetchSheetCSV(sheetId, sheetName){
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('No se pudo leer la hoja '+sheetName);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function buildMatchesFromPred(rows){
+  const matches = [];
+  const top4 = {primer:{}, segundo:{}, tercer:{}, cuarto:{}};
+  const labelMap = {'primer lugar':'primer','segundo lugar':'segundo','tercer lugar':'tercer','cuarto lugar':'cuarto'};
+  for(const row of rows){
+    const idCell = (row[0]||'').trim();
+    if(/^\d+$/.test(idCell)){
+      const id = parseInt(idCell);
+      const preds = {};
+      PARTICIPANTS.forEach((p,i)=>preds[p]=(row[5+i]||'').trim());
+      matches.push({id, dia:row[1]||'', hora:row[2]||'', grupo:row[3]||'', partido:(row[4]||'').trim(), predicciones:preds});
+    } else if(row[4]){
+      const key = labelMap[row[4].trim().toLowerCase()];
+      if(key){
+        PARTICIPANTS.forEach((p,i)=>{ top4[key][p] = (row[5+i]||'').split(' ')[0].trim(); });
+      }
+    }
+  }
+  return {matches, top4};
+}
+function buildPointsFromSheet(rows){
+  const out = {};
+  for(const row of rows){
+    const idCell=(row[0]||'').trim();
+    if(/^\d+$/.test(idCell)){
+      const id=parseInt(idCell);
+      const real=(row[2]||'').trim()||null;
+      const pts={};
+      PARTICIPANTS.forEach((p,i)=>{
+        const v=(row[3+i]||'').trim();
+        pts[p]= v===''? null : parseInt(v);
+      });
+      out[id]={resultado_real:real, puntos:pts};
+    }
+  }
+  return out;
+}
+function buildConsolidado(rows){
+  const out=[];
+  for(const row of rows){
+    const name=(row[1]||'').trim();
+    if(PARTICIPANTS.includes(name)){
+      out.push({
+        participante:name,
+        fecha1:+row[2]||0, fecha2:+row[3]||0, fecha3:+row[4]||0,
+        dieciseisavos:+row[5]||0, octavos:+row[6]||0, cuartos:+row[7]||0,
+        semis:+row[8]||0, final:+row[9]||0,
+        pts_partidos:+row[10]||0, bonus_top4:+row[11]||0,
+        total:+row[12]||0, ranking:+row[13]||0
+      });
+    }
+  }
+  out.sort((a,b)=>b.total-a.total);
+  return out;
+}
+
+function faseFor(id){
+  if(id<=24) return 'FECHA1';
+  if(id<=48) return 'FECHA2';
+  if(id<=72) return 'FECHA3';
+  if(id<=88) return '16AVOS';
+  if(id<=96) return 'OCTAVOS';
+  if(id<=100) return 'CUARTOS';
+  if(id<=102) return 'SEMIS';
+  if(id===103) return 'TERCER';
+  return 'FINAL';
+}
+
+async function loadLive(manual){
+  const sheetId = localStorage.getItem('pollaSheetId');
+  if(!sheetId){
+    if(manual){ toggleConfig(); }
+    return;
+  }
+  setStatus(null, 'Conectando con Google Sheets...');
+  try{
+    const predRows = await fetchSheetCSV(sheetId, 'PREDICCIONES');
+    const {matches, top4} = buildMatchesFromPred(predRows);
+    const tabs = ['FECHA 1','FECHA 2','FECHA 3','16AVOS','OCTAVOS','CUARTOS','SEMIS','FINAL'];
+    let pointsById = {};
+    for(const t of tabs){
+      try{
+        const rows = await fetchSheetCSV(sheetId, t);
+        Object.assign(pointsById, buildPointsFromSheet(rows));
+      }catch(e){ console.warn('No se pudo leer', t, e); }
+    }
+    matches.forEach(m=>{
+      m.fase = faseFor(m.id);
+      const pm = pointsById[m.id];
+      m.resultado_real = pm ? pm.resultado_real : null;
+      m.puntos = pm ? pm.puntos : Object.fromEntries(PARTICIPANTS.map(p=>[p,null]));
+    });
+    let consolidado = [];
+    try{
+      const consRows = await fetchSheetCSV(sheetId, 'CONSOLIDADO');
+      consolidado = buildConsolidado(consRows);
+    }catch(e){ console.warn('No se pudo leer CONSOLIDADO', e); }
+
+    DATA = {participants:PARTICIPANTS, matches, consolidado: consolidado.length?consolidado:DATA.consolidado, top4};
+    liveMode = true;
+    setStatus(true, 'Conectado a Google Sheets');
+    simPicks = {};
+    renderAll();
+  }catch(err){
+    console.error(err);
+    const isFileOrigin = location.protocol === 'file:';
+    let hint = isFileOrigin
+      ? 'Este archivo se abrio directamente desde tu computador (file://). Algunos navegadores bloquean las conexiones a internet desde archivos locales abiertos por doble clic. Prueba abrirlo arrastrandolo a una pestana de Chrome ya abierta, o subelo a Google Drive y abrelo con "Vista previa".'
+      : 'Revisa que la hoja este compartida como "Cualquier persona con el enlace - Lector" y que el nombre de las pestanas coincida exactamente (PREDICCIONES, FECHA 1, FECHA 2, FECHA 3, 16AVOS, OCTAVOS, CUARTOS, SEMIS, FINAL, CONSOLIDADO).';
+    setStatus(false, 'No se pudo conectar. ' + hint + ' Detalle tecnico: ' + (err && err.message ? err.message : err) + '. Mostrando datos de referencia.');
+  }
+}
+
+function setStatus(live, text){
+  const dot = $1('#statusDot');
+  dot.classList.toggle('live', !!live);
+  $1('#statusText').textContent = text;
+  $1('#lastUpdated').textContent = new Date().toLocaleString('es-CL');
+}
+
+// ---------- RENDER: RANKING ----------
+function renderRanking(){
+  const rows = [...DATA.consolidado].sort((a,b)=>b.total-a.total);
+  const podiumEl = $1('#podium');
+  podiumEl.innerHTML = rows.slice(0,3).map((r,i)=>`
+    <div class="card p${i+1}">
+      <div class="medal">${i===0?'1°':i===1?'2°':'3°'}</div>
+      <div class="name">${r.participante}</div>
+      <div class="pts">${r.total} pts</div>
+    </div>`).join('');
+
+  const table = $1('#rankingTable');
+  table.innerHTML = `<thead><tr><th>#</th><th>Participante</th><th>Fecha 1</th><th>Fecha 2</th><th>Fecha 3</th><th>16avos</th><th>Octavos</th><th>Cuartos</th><th>Semis</th><th>Final</th><th>Bonus Top4</th><th>Total</th></tr></thead>
+  <tbody>${rows.map((r,i)=>`<tr>
+    <td><span class="rk ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span></td>
+    <td><b>${r.participante}</b></td>
+    <td>${r.fecha1}</td><td>${r.fecha2}</td><td>${r.fecha3}</td>
+    <td>${r.dieciseisavos}</td><td>${r.octavos}</td><td>${r.cuartos}</td><td>${r.semis}</td><td>${r.final}</td>
+    <td>${r.bonus_top4}</td>
+    <td class="total">${r.total}</td>
+  </tr>`).join('')}</tbody>`;
+}
+
+// ---------- RENDER: PREDICCIONES ----------
+const FASES = [['FECHA1','Fecha 1'],['FECHA2','Fecha 2'],['FECHA3','Fecha 3'],['16AVOS','16avos'],['OCTAVOS','Octavos'],['CUARTOS','Cuartos'],['SEMIS','Semis'],['TERCER','3er Lugar'],['FINAL','Final']];
+let currentFase = 'FECHA1';
+function renderFasebar(){
+  $1('#fasebar').innerHTML = FASES.map(([k,l])=>`<button data-f="${k}" class="${k===currentFase?'active':''}">${l}</button>`).join('');
+  $('#fasebar button').forEach(b=>b.addEventListener('click',()=>{currentFase=b.dataset.f; renderFasebar(); renderMatches();}));
+}
+function pointBadgeClass(pts, max){
+  if(pts===null||pts===undefined) return 'pending';
+  if(pts===max) return 'exact';
+  if(pts>0) return 'correct';
+  return 'miss';
+}
+function renderMatches(){
+  const max = ['FECHA1','FECHA2','FECHA3'].includes(currentFase)?6:8;
+  const list = DATA.matches.filter(m=>m.fase===currentFase);
+  $1('#matchList').innerHTML = list.map(m=>`
+    <div class="matchcard">
+      <div class="mhead">
+        <div class="teams">${m.partido}</div>
+        <div class="meta">${m.dia||''} ${m.hora||''} ${m.grupo&&m.grupo!=='-'?'· Grupo '+m.grupo:''}</div>
+        ${m.resultado_real?`<div class="real">${m.resultado_real}</div>`:'<div class="meta">Pendiente</div>'}
+      </div>
+      <div class="predgrid">
+        ${PARTICIPANTS.map(p=>{
+          const pred = m.predicciones[p];
+          const pts = m.puntos ? m.puntos[p] : null;
+          const cls = pred ? pointBadgeClass(pts,max) : 'pending';
+          return `<div class="predchip ${cls}"><span class="pn">${p}</span><span class="ps">${pred||'—'}${pts!=null?' · '+pts+'p':''}</span></div>`;
+        }).join('')}
+      </div>
+    </div>`).join('') || '<p style="color:var(--muted)">Sin partidos en esta etapa.</p>';
+}
+
+// ---------- RENDER: ESTADISTICAS ----------
+function renderStats(){
+  const rows = [...DATA.consolidado].sort((a,b)=>b.total-a.total);
+  const maxTotal = Math.max(...rows.map(r=>r.total),1);
+  $1('#statTotal').innerHTML = rows.map((r,i)=>`
+    <div class="barrow"><div class="lbl">${r.participante}</div>
+      <div class="track"><div class="fill" style="width:${(r.total/maxTotal*100).toFixed(0)}%;background:${COLORS[i%COLORS.length]}"></div></div>
+      <div class="val">${r.total}</div></div>`).join('');
+
+  // accuracy: count exact/correct across all matches with results
+  const acc = {};
+  PARTICIPANTS.forEach(p=>acc[p]={exact:0,correct:0,miss:0});
+  DATA.matches.forEach(m=>{
+    if(!m.resultado_real) return;
+    const max = ['FECHA1','FECHA2','FECHA3'].includes(m.fase)?6:8;
+    PARTICIPANTS.forEach(p=>{
+      const pts = m.puntos?m.puntos[p]:null;
+      if(pts===null||pts===undefined) return;
+      if(pts===max) acc[p].exact++;
+      else if(pts>0) acc[p].correct++;
+      else acc[p].miss++;
+    });
+  });
+  const accRows = PARTICIPANTS.map(p=>({p,...acc[p]})).sort((a,b)=>(b.exact*2+b.correct)-(a.exact*2+a.correct));
+  const maxAcc = Math.max(...accRows.map(r=>r.exact+r.correct+r.miss),1);
+  $1('#statAccuracy').innerHTML = accRows.map(r=>`
+    <div class="barrow"><div class="lbl">${r.p}</div>
+      <div class="track" style="display:flex;">
+        <div class="fill" style="width:${(r.exact/maxAcc*100).toFixed(1)}%;background:var(--gold)"></div>
+        <div class="fill" style="width:${(r.correct/maxAcc*100).toFixed(1)}%;background:var(--blue)"></div>
+        <div class="fill" style="width:${(r.miss/maxAcc*100).toFixed(1)}%;background:var(--surface2)"></div>
+      </div>
+      <div class="val">${r.exact}E/${r.correct}C</div></div>`).join('')
+      + `<p style="color:var(--muted);font-size:11px;margin-top:10px;"><span style="color:var(--gold)">■</span> Exacto &nbsp;<span style="color:var(--blue)">■</span> Resultado correcto &nbsp;<span style="color:var(--muted)">■</span> Sin acierto</p>`;
+
+  const phaseTable = $1('#statByPhase');
+  phaseTable.innerHTML = `<thead><tr><th>Participante</th><th>Fecha 1</th><th>Fecha 2</th><th>Fecha 3</th><th>16avos</th><th>Octavos</th><th>Cuartos</th><th>Semis</th><th>Final</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr><td><b>${r.participante}</b></td><td>${r.fecha1}</td><td>${r.fecha2}</td><td>${r.fecha3}</td><td>${r.dieciseisavos}</td><td>${r.octavos}</td><td>${r.cuartos}</td><td>${r.semis}</td><td>${r.final}</td></tr>`).join('')}</tbody>`;
+}
+
+// ---------- BRACKET + SIMULATOR ----------
+function matchesById(){
+  const map={};
+  DATA.matches.forEach(m=>map[m.id]=m);
+  return map;
+}
+let MB = {};
+function cleanMatchup(text){
+  return text.replace(/^.*:\s*/, '');
+}
+function getTeams(id, memo){
+  if(memo[id]) return memo[id];
+  const m = MB[id];
+  if(!m) return {home:null, away:null};
+  const refs = [...m.partido.matchAll(/(Gan|Per)\.M(\d+)/g)];
+  let home=null, away=null;
+  if(refs.length>=2){
+    home = resolveRef(refs[0], memo);
+    away = resolveRef(refs[1], memo);
+  } else {
+    const parts = cleanMatchup(m.partido).split(' vs ');
+    home = (parts[0]||'').trim();
+    away = (parts[1]||'').trim();
+  }
+  memo[id]={home,away};
+  return memo[id];
+}
+function resolveRef(ref, memo){
+  const kind = ref[1];
+  const refId = parseInt(ref[2]);
+  const refMatch = MB[refId];
+  if(!refMatch) return null;
+  const teams = getTeams(refId, memo);
+  let winner = null;
+  if(refMatch.resultado_real){
+    const [hg,ag] = refMatch.resultado_real.split('-').map(Number);
+    winner = hg>ag?teams.home:(ag>hg?teams.away:null);
+  } else if(simPicks[refId]){
+    winner = simPicks[refId];
+  }
+  if(!winner) return null;
+  if(kind==='Gan') return winner;
+  return winner===teams.home?teams.away:teams.home;
+}
+
+function renderBracket(){
+  MB = matchesById();
+  const memo = {};
+  const phases = [['16AVOS','16avos'],['OCTAVOS','Octavos'],['CUARTOS','Cuartos'],['SEMIS','Semis'],['TERCER','3er Lugar'],['FINAL','Final']];
+  const cols = phases.map(([key,label])=>{
+    const ms = DATA.matches.filter(m=>m.fase===key);
+    const cards = ms.map(m=>{
+      const teams = getTeams(m.id, memo);
+      const decided = !!m.resultado_real;
+      let winner = null;
+      if(decided){
+        const [hg,ag]=m.resultado_real.split('-').map(Number);
+        winner = hg>ag?teams.home:(ag>hg?teams.away:null);
+      } else if(simPicks[m.id]){
+        winner = simPicks[m.id];
+      }
+      const canPick = !decided && teams.home && teams.away;
+      function teamRow(t, isHome){
+        if(!t) return `<div class="bteam tbd">Por definir</div>`;
+        const isWinner = winner===t;
+        const cls = 'bteam'+(isWinner?' winner':'')+(canPick?' pick':'');
+        return `<div class="${cls}" ${canPick?`onclick="pickWinner(${m.id}, '${t.replace(/'/g,"\\'")}')"`:''}>${t}${isWinner?' ✓':''}</div>`;
+      }
+      return `<div class="bmatch">
+        ${teamRow(teams.home,true)}
+        ${teamRow(teams.away,false)}
+        <div class="bdate">${m.resultado_real?('Real: '+m.resultado_real):(m.dia? (m.dia+' '+m.hora):'Por jugarse')}</div>
+      </div>`;
+    }).join('');
+    return `<div class="bcol"><h4>${label}</h4>${cards}</div>`;
+  }).join('');
+  $1('#bracketCols').innerHTML = cols;
+}
+function pickWinner(matchId, team){
+  simPicks[matchId]=team;
+  renderBracket();
+}
+function resetSim(){
+  simPicks = {};
+  renderBracket();
+}
+
+// ---------- INIT ----------
+function renderAll(){
+  $1('#participantList').textContent = PARTICIPANTS.join(' · ');
+  renderRanking();
+  renderFasebar();
+  renderMatches();
+  renderStats();
+  renderBracket();
+}
+(function init(){
+  setStatus(false, 'Datos de referencia (snapshot guardado al construir el dashboard)');
+  $1('#lastUpdated').textContent = new Date().toLocaleString('es-CL');
+  renderAll();
+  if(localStorage.getItem('pollaSheetId')){
+    $1('#sheetIdInput').value = localStorage.getItem('pollaSheetId');
+    loadLive(false);
+  }
+})();
+</script>
+</body>
+</html>
